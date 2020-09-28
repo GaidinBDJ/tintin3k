@@ -1,0 +1,76 @@
+#class {GaidinBDJ_run2} {kill}
+#class {GaidinBDJ_run2} {open}
+
+#nop Speedwalk script intended for 3k (but should be usable everywhere).;
+#nop by Gaidin (gaidinbdj@gmail.com)
+#nop v1
+
+#nop It is based off the strings for the necromancer "vision" power on;
+#nop 3-Kingdoms MUD, but NECRO VISION STRINGS ARE NOT COMPATIBLE!;
+#nop Notably, numbers are *NOT* used in directions.  They're used to;
+#nop  repeat a direction (12n, 10SE, etc.);
+#nop Paths are just a single string with no spaces.  If you have an;
+#nop  unrecognized element, the execution will fail.
+
+#nop Commands:;
+#nop  n: north        e: east         s: south        w:west;
+#nop  NE: northeast   SE: southeast   SW: southwest   NW: northwest;
+#nop  u: up           d: down         i: in           o: out;
+#nop  r: enter        x: exit         c: climb        l: leave;
+#nop  p: portal       g: gate         t: stairs       h: home;
+#nop  v: vortex;
+
+#var {r2_command_list[n]} {n};
+#var {r2_command_list[e]} {e};
+#var {r2_command_list[w]} {w};
+#var {r2_command_list[s]} {s};
+#var {r2_command_list[NW]} {nw};
+#var {r2_command_list[NE]} {ne};
+#var {r2_command_list[SW]} {sw};
+#var {r2_command_list[SE]} {se};
+#var {r2_command_list[u]} {u};
+#var {r2_command_list[d]} {d};
+#var {r2_command_list[i]} {in};
+#var {r2_command_list[o]} {out};
+#var {r2_command_list[r]} {enter};
+#var {r2_command_list[x]} {exit};
+#var {r2_command_list[c]} {climb};
+#var {r2_command_list[l]} {leave};
+#var {r2_command_list[p]} {portal};
+#var {r2_command_list[g]} {gate};
+#var {r2_command_list[t]} {stairs};
+#var {r2_command_list[h]} {home};
+#var {r2_command_list[v]} {vortex};
+
+#alias run2 {
+  #var {r2_path} {%0};
+  #var {r2_element} {};
+  #var {r2_command} {};
+  #var {r2_commands} {create} {};
+  
+  #parse {$r2_path} {char} {
+    #var {r2_element} {$r2_element$char};
+    #regex {$r2_element} {{^(\d*)(n|e|w|s|NW|NE|SW|SE|u|d|i|o|r|x|c|l|p|g|t|h|v)}} {
+      #NOP DEBUG #showme {Num:&2  Dir:&3};
+      #if {"&2" == ""} {#var {r2_command} {$r2_command_list[&3]}} {#var {r2_command} {#&2 $r2_command_list[&3]}};
+      #NOP DEBUG #showme {Adding:$r2_command};
+      #list {r2_commands} {add} {$r2_command};
+      #var {r2_element} {};
+    } {
+      #NOP DEBUG #showme {Skipping:$r2_element};
+    };
+  };
+  
+  #if {"$r2_element" != ""} {
+    #showme {Something went wrong.  Probably here: $r2_element};
+   } {
+    #showme {Looks good.  Executing.};
+    #list {r2_commands} {simplify} {r2_commands_flat};
+    #NOP DEBUG #var {r2_commands};
+    #NOP DEBUG #var {r2_commands_flat};
+    $r2_commands_flat
+   };
+
+};
+
+#class {GaidinBDJ_run2} {close}
