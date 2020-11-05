@@ -2,15 +2,18 @@
 #class {GaidinBDJ_run2} {open}
 
 #nop Speedwalk script intended for 3k (but should be usable everywhere).;
-#nop by Gaidin (gaidinbdj@gmail.com)
-#nop v2
+#nop by Gaidin (gaidinbdj@gmail.com);
+#nop v3;
 
 #nop It is based off the strings for the necromancer "vision" power on;
 #nop 3-Kingdoms MUD, but NECRO VISION STRINGS ARE NOT COMPATIBLE!;
 #nop Notably, numbers are *NOT* used as directions.  They're used to;
 #nop  repeat a direction (12n, 10SE, etc.);
+#nop The function "nec_to_run" can be attempted to convert necro vision;
+#nop  strings to run strings.  You can try "run @nec_to_run{necString}" at;
+#nop  your own risk.;
 #nop Paths are just a single string with no spaces.  If you have an;
-#nop  unrecognized element, the execution will fail.
+#nop  unrecognized element, the execution will fail.;
 
 #nop Commands:;
 #nop  n: north        e: east         s: south        w:west;
@@ -41,6 +44,9 @@
 #var {r2_command_list[t]} {stairs};
 #var {r2_command_list[h]} {home};
 #var {r2_command_list[v]} {vortex};
+#var {r2_command_list[f]} {focus};
+#nop Focus' inclusion is just for attempted compatability with necro;
+#nop  vision strings.;
 
 #alias run {
   #if {"%0" == ""} {
@@ -52,17 +58,24 @@
     #showme   r: enter        x: exit         c: climb        l: leave;
     #showme   p: portal       g: gate         t: stairs       h: home;
     #showme   v: vortex;
+    #showme {};
+    #showme Example:run 2n3er2w will execute:;
+    #showme  n,n,e,e,e,enter,w,w;
+    #showme NECRO STRINGS ARE NOT COMPATIBLE. You can attempt to auto-;
+    #showme  matically convert them using the following format:;
+    #showme   run @nec_to_run{necString};
     #return;
   };
 
   #var {r2_path} {%0};
+  #replace {r2_path} { } {};
   #var {r2_element} {};
   #var {r2_command} {};
   #var {r2_commands} {create} {};
   
   #parse {$r2_path} {char} {
     #var {r2_element} {$r2_element$char};
-    #regex {$r2_element} {{^(\d*)(n|e|w|s|NW|NE|SW|SE|u|d|i|o|r|x|c|l|p|g|t|h|v)}} {
+    #regex {$r2_element} {{^(\d*)(n|e|w|s|NW|NE|SW|SE|u|d|i|o|r|x|c|l|p|g|t|h|v|f)}} {
       #NOP DEBUG #showme {Num:&2  Dir:&3};
       #if {"&2" == ""} {#var {r2_command} {$r2_command_list[&3]}} {#var {r2_command} {#&2 $r2_command_list[&3]}};
       #NOP DEBUG #showme {Adding:$r2_command};
@@ -83,6 +96,19 @@
     $r2_commands_flat
    };
 
+};
+
+#function nec_to_run {
+  #local {tmp_nec} {%0};
+  #replace {tmp_nec} {1} {SW};
+  #replace {tmp_nec} {2} {s};
+  #replace {tmp_nec} {3} {SE};
+  #replace {tmp_nec} {4} {w};
+  #replace {tmp_nec} {6} {e};
+  #replace {tmp_nec} {7} {NW};
+  #replace {tmp_nec} {8} {n};
+  #replace {tmp_nec} {9} {NE};
+  #return $tmp_nec;
 };
 
 #class {GaidinBDJ_run2} {close}
