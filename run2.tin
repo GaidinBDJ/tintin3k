@@ -45,6 +45,7 @@
 #var {r2_command_list[h]} {home};
 #var {r2_command_list[v]} {vortex};
 #var {r2_command_list[f]} {focus};
+#nop Focus is only here for nec string compatibility.  Ish.;
 
 #alias run {
   #if {"%0" == ""} {
@@ -56,6 +57,7 @@
     #showme   r: enter        x: exit         c: climb        l: leave;
     #showme   p: portal       g: gate         t: stairs       h: home;
     #showme   v: vortex;
+    #showme Numbers may be used to repeat a command.  e.g. run 12e19w;
     #return;
   };
 
@@ -83,7 +85,6 @@
    } {
     #showme {Looks good.  Executing.};
     #list {r2_commands} {simplify};
-    #var {r2_commands};
     $r2_commands;
    };
 
