@@ -10,7 +10,7 @@
 #nop Notably, numbers are *NOT* used as directions.  They're used to;
 #nop  repeat a direction (12n, 10SE, etc.);
 #nop The function "nec_to_run" can be attempted to convert necro vision;
-#nop  strings to run strings.  You can try "run @nec_to_run{necString}" at;
+#nop  strings to run strings.  You can try the nec_to_run function;
 #nop  your own risk.;
 #nop Paths are just a single string with no spaces.  If you have an;
 #nop  unrecognized element, the execution will fail.;
@@ -45,8 +45,6 @@
 #var {r2_command_list[h]} {home};
 #var {r2_command_list[v]} {vortex};
 #var {r2_command_list[f]} {focus};
-#nop Focus' inclusion is just for attempted compatability with necro;
-#nop  vision strings.;
 
 #alias run {
   #if {"%0" == ""} {
@@ -58,12 +56,6 @@
     #showme   r: enter        x: exit         c: climb        l: leave;
     #showme   p: portal       g: gate         t: stairs       h: home;
     #showme   v: vortex;
-    #showme {};
-    #showme Example:run 2n3er2w will execute:;
-    #showme  n,n,e,e,e,enter,w,w;
-    #showme NECRO STRINGS ARE NOT COMPATIBLE. You can attempt to auto-;
-    #showme  matically convert them using the following format:;
-    #showme   run @nec_to_run{necString};
     #return;
   };
 
@@ -71,7 +63,7 @@
   #replace {r2_path} { } {};
   #var {r2_element} {};
   #var {r2_command} {};
-  #var {r2_commands} {create} {};
+  #list {r2_commands} {create} {};
   
   #parse {$r2_path} {char} {
     #var {r2_element} {$r2_element$char};
@@ -90,10 +82,9 @@
     #showme {Something went wrong.  Probably here: $r2_element};
    } {
     #showme {Looks good.  Executing.};
-    #list {r2_commands} {simplify} {r2_commands_flat};
-    #NOP DEBUG #var {r2_commands};
-    #NOP DEBUG #var {r2_commands_flat};
-    $r2_commands_flat
+    #list {r2_commands} {simplify};
+    #var {r2_commands};
+    $r2_commands;
    };
 
 };
