@@ -1,0 +1,7 @@
+#class {gbdj_skel} {kill};
+#class {gbdj_skel} {open};
+
+#nop Stuff goes here;
+
+#alias reread {#read skel.tin};
+#class {gbdj_skel} {close};
