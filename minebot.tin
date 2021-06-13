@@ -1,0 +1,80 @@
+#class {minebot} {kill}
+#class {minebot} {open}
+
+#var {minebot[copper]} {0};
+#var {minebot[bronze]} {0};
+#var {minebot[iron]} {0};
+#var {minebot[steel]} {0};
+#var {minebot[silver]} {0};
+#var {minebot[gold]} {0};
+#var {minebot[mithril]} {0};
+#var {minebot[titanium]} {0};
+#var {minebot[ebon]} {0};
+#var {minebot[adamantium]} {0};
+#var {minebot[obsidian]} {0};
+#var {minebot[nethernium]} {1};
+#var {minebot[voidstone]} {1};
+#var {minebot[phasemetal]} {0};
+#var {minebot[chaostone]} {1};
+
+#var {minebot[spelunked]} {0};
+#var {minebot[mob]} {0};
+#var {minebot[mining]} {0};
+#var {minebot[ore]} {0};
+
+#var {minebot[path][mines6]} {w;w;w;s;w;n;{s;s};s;se;sw;n;{s;nw};{ne;n;n;e;n;n};w;w;w;n;n;{s;e};e;e;n;e;e;s;w;s;e;{s;e}};
+#var {minebot[path][mines7]} {se;e;n;w;e;e;e;e;e;s;w;w;s;e;s;e;e;n;e;n;w;w;{w;w;s;e;s;e;s};s;w;w;w;n;n;e;s;{n;w;s;s;e;e;e;e};e;e;n;n;w;s;{n;e;s;s;w;w;w;n;n;w;n;w;n;e;e;n;w;w;w;w;w;s;nw}};
+#var {minebot[path][mines8]} {s;se;sw;sw;n;n;{s;s;nw};nw;ne;e;{e;n}};
+
+#action {^You have disturbed %1!} {#var minebot[mob] 1};
+event_register e_combat_end h_minebot_combatend minebot_clrmob;
+#alias {minebot_clrmob} {#nop %1;#var minebot[mob] 0;}:
+
+#action {^You have found a deposit of %1 ore!} {#nop %1;#var minebot[ore] $minebot[%1];} {1};
+#action {^You have exhausted the supply of %1 ore.} {#nop %1;#var minebot[ore] 0;#var minebot[mining] 0;};
+
+#action {^It appears this part of the shaft has already been searched.} {
+   minebot_msg Already spelunked;
+   #var minebot[spelunked] 1;
+};
+
+#alias minebot_start {
+   #path {load} {minebot[path][mines$minebot[floor]]};
+   #nop #path {load} {minebot[path][mines7]};
+   #ticker {minebot_ticker} {minebot_do} {3};
+};
+
+#alias minebot_do {
+   minebot_msg Splunked:$minebot[spelunked] Mob:$minebot[mob] Ore:$minebot[ore] Mining:$minebot[mining];
+   #if { !$minebot[spelunked] } {
+      minebot_msg {Sending: spelunk};
+      #send {spelunk};
+      #var minebot[spelunked] 1;
+   };
+   #elseif {!$minebot[mob] && $minebot[ore] && !$minebot[mining]} {
+      minebot_msg {Sending: mine};
+      #send {mine};
+      #var minebot[mining] 1;
+   };
+   #elseif {!$minebot[mob] && !$minebot[ore] && $minebot[spelunked]} {
+      #var {minebot[spelunked]} {0};
+      #var {minebot[mob]} {0};
+      #var {minebot[ore]} {0};
+      minebot_msg {Flags cleared.  Moving.};
+      #path walk;
+   };
+};
+
+#alias {minebot_kill} {
+   event_remove_handler h_minebot_combatend;
+   #untick {minebot_ticker};
+   #unvar minebot;
+   #class minebot kill;
+};
+
+#act {#END OF PATH} {
+   event_raise e_notice {Minebot completed.\a};
+   minebot_kill;
+};
+
+#class {minebot} {close}
