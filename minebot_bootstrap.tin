@@ -1,0 +1,30 @@
+#class {minebot_bootstrap} {kill}
+#class {minebot_bootstrap} {open}
+
+#alias minebot_msg {
+	#local tmp %0;
+	#local tmp_msg {};
+	#format tmp_msg {<107>Minebot: %-60s<088>} {$tmp};
+	#showme $tmp_msg;
+};
+
+#action {^You enter the mine shaft and hit the button for level %d$} {
+   #var minebot[floor] %1;
+   #read bot/minebot.tin;
+   #alias mb {minebot_start;#unalias mb};
+   minebot_msg {Mine level $minebot[floor] loaded.};
+   #switch {$minebot[floor]} {
+      #case 1 {minebot_msg {Copper:$minebot[copper]}};
+      #case 2 {minebot_msg {Bronze:$minebot[bronze]}};
+      #case 3 {minebot_msg {Iron:$minebot[iron] Steel:$minebot[steel]}};
+      #case 4 {minebot_msg {Silver:$minebot[silver] Gold:$minebot[gold] Mithril:$minebot[mithril]}};
+      #case 5 {minebot_msg {Titanium:$minebot[titanium] Ebon:$minebot[ebon]}};
+      #case 6 {minebot_msg {Adamantium:$minebot[adamantium] Obsidian:$minebot[obsidian]}};
+      #case 7 {minebot_msg {Nethernium:$minebot[nethernium] Voidstone:$minebot[voidstone] Phasemetal:$minebot[phasemetal]}};
+      #case 8 {minebot_msg {Chaostone:$minebot[chaostone]}};
+      #default {minebot_msg $minebot[floor] ain't no kind of floor I ever heard of.};
+   };
+   minebot_msg {Type 'mb' to start.};
+};
+
+#class {minebot_bootstrap} {close}
