@@ -1,6 +1,7 @@
 #class {minebot} {kill}
 #class {minebot} {open}
 
+#nop 0 will skip, 1 will mine those nodes when found;
 #var {minebot[copper]} {0};
 #var {minebot[bronze]} {0};
 #var {minebot[iron]} {0};
@@ -17,6 +18,7 @@
 #var {minebot[phasemetal]} {0};
 #var {minebot[chaostone]} {1};
 
+#nop State tracking;
 #var {minebot[spelunked]} {0};
 #var {minebot[mob]} {0};
 #var {minebot[mining]} {0};
