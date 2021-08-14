@@ -1,0 +1,100 @@
+#class {crafting_satchel} {kill};
+#class {crafting_satchel} {open};
+
+#unvar satchel;
+#var qualitities {{1}{legendary}{2}{superior}{3}{good}{4}{average}{5}{poor}{6}{crude}{7}{worthless}};
+#var upgradeamts {{poor}{3} {average}{2} {good}{3} {superior}{4}};
+#var targetqual {{poor}{good} {average}{good} {good}{superior} {superior}{legendary}}
+
+#action {^%*%s|%s%d%s|%s%d%s|%s%d%s|%s%d%s|%s%d%s|%s%d%s|%s%d%s|%s%d%s|} {
+	#local item {};
+	#format {item} {%l} {%1};
+	#var satchel[$item][total] %4;
+	#var satchel[$item][legendary] %7;
+	#var satchel[$item][superior] %10;
+	#var satchel[$item][good] %13;
+	#var satchel[$item][average] %16;
+	#var satchel[$item][poor] %19;
+	#var satchel[$item][crude] %22;
+	#var satchel[$item][worthless] %25;
+	#unlocal item;
+};
+
+#alias satchel_condense {
+	#loop 1 &satchel[] i {
+		#regex {*satchel[+$i]} {{fragment|essence}%*} {
+			#loop 1 7 j {
+				#if {$satchel[+$i][$qualitities[$j]] >= 5} {
+					#math {$satchel[+$i][$qualitities[$j]]} {$satchel[+$i][$qualitities[$j]] - 5};
+					unstash2 5 $qualitities[$j] *satchel[+$i];
+					assemble *satchel[+$i];
+					stash all;
+				};
+			};
+		};
+	};
+};
+
+#nop "xmu good rage"
+#alias xmh {
+  stash all;
+  unstash $upgradeamts[%1] %1 heart of %2;
+  transmute all heart quality to $targetqual[%1];
+  stash all;
+};
+
+#nop "xmu average {voidstone shards}"
+#nop Braces only necessary for multi-word ingredients
+#nop Use { } to gropu multiworld ingredients;
+#alias xmu {
+  stash all;
+  unstash $upgradeamts[%1] %1 %2;
+  transmute all %2 quality to $targetqual[%1];
+  stash all;
+};
+
+#alias condenseore {
+	stash all;
+	
+	#if {"%1" == "" } {#showme Needs type.;#return};
+	#var {tmp[oretype]} {%1};
+	
+	#if {$satchel[$tmp[oretype] ore][poor] > 3} {
+		#math {tmp[p2a]} {$satchel[$tmp[oretype] ore][poor] / 3};
+		#math {tmp[p2a]} {$tmp[p2a] * 3};
+		#math {satchel[$tmp[oretype] ore][poor]} {$satchel[$tmp[oretype] ore][poor] - $tmp[p2a]};
+		unstash2 $tmp[p2a] poor $tmp[oretype] ore;
+		transmute $tmp[p2a] poor $tmp[oretype] ore quality to good;stash all;
+		#math {satchel[$tmp[oretype] ore][good]} {$satchel[$tmp[oretype] ore][good] + $tmp[p2a] / 3};
+	};
+
+	#if {$satchel[$tmp[oretype] ore][average] > 24} {
+		#math {tmp[a2l]} {$satchel[$tmp[oretype] ore][average] / 24};
+		#math {tmp[a2l]} {$tmp[a2l] * 24};
+		#math {satchel[$tmp[oretype] ore][average]} {$satchel[$tmp[oretype] ore][average] - $tmp[a2l]};
+		unstash2 $tmp[a2l] average $tmp[oretype] ore;
+		transmute $tmp[a2l] average $tmp[oretype] ore quality to legendary;stash all;
+		#math {satchel[$tmp[oretype] ore][legendary]} {$satchel[$tmp[oretype] ore][legendary] + $tmp[a2l] / 24};
+	};
+
+	#if {$satchel[$tmp[oretype] ore][good] > 12} {	
+		#math {tmp[g2l]} {$satchel[$tmp[oretype] ore][good] / 12};
+		#math {tmp[g2l]} {$tmp[g2l] * 12};
+		#math {satchel[$tmp[oretype] ore][good]} {$satchel[$tmp[oretype] ore][good] - $tmp[g2l]};
+		unstash2 $tmp[g2l] good $tmp[oretype] ore;
+		transmute $tmp[g2l] good $tmp[oretype] ore quality to legendary;stash all;
+		#math {satchel[$tmp[oretype] ore][legendary]} {$satchel[$tmp[oretype] ore][legendary] + $tmp[g2l] / 12};
+	};
+
+	#if {$satchel[$tmp[oretype] ore][superior] > 4} {	
+		#math {tmp[s2l]} {$satchel[$tmp[oretype] ore][superior] / 4};
+		#math {tmp[s2l]} {$tmp[s2l] * 4};
+		#math {satchel[$tmp[oretype] ore][superior]} {$satchel[$tmp[oretype] ore][superior] - $tmp[s2l]};
+		unstash2 $tmp[s2l] superior $tmp[oretype] ore;
+		transmute $tmp[s2l] superior $tmp[oretype] ore quality to legendary;stash all;
+		#math {satchel[$tmp[oretype] ore][legendary]} {$satchel[$tmp[oretype] ore][legendary] + $tmp[s2l] / 4};
+	};
+};
+
+
+#class {crafting_satchel} {close};
