@@ -1,9 +1,10 @@
-#NOP MIP handler version 1.05
+#NOP MIP handler version 1.06
 #NOP By Balthus.
+#NOP Minor bug correction in color handling by Gaidin and incremented version number to differentiate.  
 
 #NOP ***** Set MIP ID Code **********;
 #VAR {mip} {};
-#VAR {mip[Version]} {0.105};
+#VAR {mip[Version]} {0.106};
 #VAR {mip[id]} {};
 #LOOP {1} {5} {i}
 {
@@ -162,7 +163,7 @@
 #FUNCTION {fMipColourConv}
 {
   #VAR {result} {%1};
-  #REPLACE {result} {{>}} {<898> };
+  #REPLACE {result} {>} {<898>};
   #REPLACE {result} {<y} {<838>};
   #REPLACE {result} {<r} {<818>};
   #REPLACE {result} {<b} {<848>};
@@ -170,6 +171,7 @@
   #REPLACE {result} {<c} {<868>};
   #REPLACE {result} {<v} {<858>};
   #REPLACE {result} {<s} {<278>};
+	#REPLACE {result} {<w} {};
 };
 
 #NOP ***** Convert Tilda Delimited Strings *****;
