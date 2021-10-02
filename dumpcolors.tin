@@ -1,0 +1,13 @@
+#nop Just dumps all the <abc> format colors;
+
+#alias {dumpcolors} {
+    #foreach {a;b;c;d;e;f} {i} {
+        #foreach {a;b;c;d;e;f} {j} {
+            #foreach {a;b;c;d;e;f} {k} {
+                #var {tmp[line]} {$tmp[line] <$i$j$k>$i$j$k<088>};
+            };
+            #showme $tmp[line];
+            #unvar tmp[line];
+        };
+    };
+};
