@@ -1,12 +1,19 @@
 #class {guild_changeling_biome} {kill};
 #class {guild_changeline_biome} {open};
 
+#nop -----------------------------------------------;
+#nop Assume room short starts with [RS] and NPCs;
+#nop  start with [NPC];
+#nop -----------------------------------------------;
+
 #map read {areas/maps/biome.map};
 #var maparea {biome}
 #map goto 1;
 
 #action {^[NPC]{A|An} %+.} {
-	#nop To exclude your clone;
+	#nop -----------------------------------------------;
+	#nop Conditional to exclude clone;
+	#nop -----------------------------------------------;
 	#if {"%2" != "small puddle of slime" } {
 		#var {biome[formname]} {%2};
 		#showme Found form: %2;
