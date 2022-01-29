@@ -1,0 +1,52 @@
+#class {guild_changeling_biome} {kill};
+#class {guild_changeline_biome} {open};
+
+#map read {areas/maps/biome.map};
+#var maparea {biome}
+#map goto 1;
+
+#action {^[NPC]{A|An} %+.} {
+	#nop To exclude your clone;
+	#if {"%2" != "small puddle of slime" } {
+		#var {biome[formname]} {%2};
+		#showme Found form: %2;
+		#send {exa %2};
+	} {
+		#showme Ignoring slime;
+	};
+} {9.9};
+
+#action {[RS]%+ \{%+\} \(%+\)} {
+	#var {biome[room]} {%1};
+	#var {biome[time]} {%2};
+	#showme Room: %1  Time: %2  Exits: %3;
+} {9.9};
+
+
+#action {This %w appears to {be|have} %+ {and has|but} %+.} {
+	#var {biome[formtype]} {%1};
+	#var {biome[strength]} {%3};
+	#var {biome[weakness]} {%5};
+	
+	#map find 1;
+	#path {save} {backward} {biome[path]};
+	
+	#nop #var biome;
+	
+	#format {formdata} {%s | %s | %s | %s | %s | %s | %s}
+		{$biome[formname]}
+		{$biome[formtype]}
+		{$biome[strength]}
+		{$biome[weakness]}
+		{$biome[time]}
+		{$biome[room]}
+		{$biome[path]};
+
+	#line log {guilds/changeling/formdata.txt} {$formdata};
+		
+	#showme $formdata;
+};
+
+#alias reread {#read guilds/changeling/biome.tin};
+
+#class {guild_changeline_biome} {close};
