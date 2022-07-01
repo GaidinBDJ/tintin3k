@@ -67,7 +67,7 @@
     #CASE {"HAA"} {#NOP Room Items;#VAR {mip[%1][data]} {@fMipTildaConv{$mip[%1][data]}};};
     #CASE {"HAB"} {
       #NOP Item Actions;#VAR {mip[%1][data]} {@fMipTildaConv{$mip[%1][data]}};
-      #showme <107>NOUN: %1<088>;
+      #showme <107>NOUN: %2<088>;
     };
     #DEFAULT {#NOP Every other non-handled flag;};
   };
