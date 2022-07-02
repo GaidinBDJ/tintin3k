@@ -1,0 +1,49 @@
+#class {GaidinBDJ_questing} {kill};
+#class {GaidinBDJ_questing} {open};
+
+#var {gbdj_questing[shownouns]} {false};
+
+#alias gbdj_questing_shownouns {
+	#if {"%1" == "toggle"} {
+		#if {"$gbdj_questing[shownouns]" == "true"} {
+			#var {gbdj_questing[shownouns]} {false};
+			#send {3klient HAB off};
+			event_remove_handler h_hab;
+			#showme {<G07>NOUNS: MIP nouns toggled OFF.<088>};
+			#return;
+		};
+		#if {"$gbdj_questing[shownouns]" == "false"} {
+			#var {gbdj_questing[shownouns]} {true};
+         #send {3klient HAB on};
+         event_register e_mip_HAB h_hab gbdj_questing_show_noun;
+			#showme {<G07>NOUNS: MIP nouns toggled ON.<088>};
+			#return;
+		};
+	};
+	#if {"%1" == "off"} {
+		#var {gbdj_questing[shownouns]} {false};
+      #send {3klient HAB off};
+      event_remove_handler h_hab;
+		#showme {<G07>NOUNS: MIP nouns turned OFF.<088>};
+		#return;
+	};
+	#if {"%1" == "on"} {
+		#var {gbdj_questing[shownouns]} {true};
+      #send {3klient HAB on};
+      event_register e_mip_HAB h_hab gbdj_questing_show_noun;
+		#showme {<G07>NOUNS: MIP nouns turned ON.<088>};
+		#return;
+	};
+	#showme {<G07>NOUNS: MIP nouns showing status is: $gbdj_questing[shownouns].<088>};
+};
+
+#alias gbdj_questing_show_noun {
+   #nop %1;
+   #regex {%2} {{noun;(.*);(.*);(.*)}} {
+      #showme {<G07>NOUN: &2<088>};
+   } {
+	   #showme {<G07>NOUNS: Show called but regex failed on: %2<088>};   
+   };
+};
+
+#class {GaidinBDJ_questing} {close};
