@@ -1,10 +1,10 @@
-#NOP MIP handler version 1.06
-#NOP By Balthus.
-#NOP Minor bug correction in color handling by Gaidin and incremented version number to differentiate.  
+#NOP MIP handler version 1.07;
+#NOP Original v1.05 by Balthus.;
+#NOP v1.06, v1.06 - Bux fixes by Gaidin.;
 
 #NOP ***** Set MIP ID Code **********;
 #VAR {mip} {};
-#VAR {mip[Version]} {0.106};
+#VAR {mip[Version]} {0.107};
 #VAR {mip[id]} {};
 #LOOP {1} {5} {i}
 {
@@ -36,32 +36,35 @@
 #ALIAS {.aMipProcessFlag}
 {
   #NOP %1;
+  #nop Storing argument in variable to fix a bug when glines include a semicolon;
+  #var tmp[mipdata] {%2};
+  #replace {tmp[mipdata]} {;} {:};
   #SWITCH {"%1"}
   {
     #CASE {"AAA"} {#NOP Sound;};
     #CASE {"AAB"} {#NOP Image;};
-    #CASE {"AAC"} {#NOP Reboot Time;#VAR {session[RebootTime]} {%2};};
+    #CASE {"AAC"} {#NOP Reboot Time;#VAR {session[RebootTime]} {$tmp[mipdata]};};
     #CASE {"AAD"} {#NOP Music;};
-    #CASE {"AAF"} {#NOP Uptime;#VAR {session[UpTime]} {%2};};
+    #CASE {"AAF"} {#NOP Uptime;#VAR {session[UpTime]} {$tmp[mipdata]};};
     #CASE {"AAG"} {#NOP AVI movie;};
     #CASE {"AAH"} {#NOP Download Media;};
     #CASE {"BAA"} {#NOP Special Textstring;};
     #CASE {"BAB"} {#NOP 2 Way Communications;#VAR {mip[%1][data]} {@fMipTildaConv{$mip[%1][data]}};};
     #CASE {"BAC"} {#NOP Special Textstring2;};
     #CASE {"BAD"} {#NOP Room Description;};
-    #CASE {"BAE"} {#NOP Mud Lag;#VAR {session[Lag]} {%2};};
+    #CASE {"BAE"} {#NOP Mud Lag;#VAR {session[Lag]} {$tmp[mipdata]};};
     #CASE {"BAF"} {#NOP Send Edit;};
-    #CASE {"BBA"} {#NOP Guild Point1 Mask;#VAR {my[gp1][name]} {%2};};
-    #CASE {"BBB"} {#NOP Guild Point2 Mask;#VAR {my[gp2][name]} {%2};};
+    #CASE {"BBA"} {#NOP Guild Point1 Mask;#VAR {my[gp1][name]} {$tmp[mipdata]};};
+    #CASE {"BBB"} {#NOP Guild Point2 Mask;#VAR {my[gp2][name]} {$tmp[mipdata]};};
     #CASE {"BBC"} {#NOP Hit Point Mask;#VAR {my[hp][name]} {%1};};
     #CASE {"BBD"} {#NOP Spell Point Mask;#VAR {my[sp][name]} {%1};};
     #CASE {"CAA"} {#NOP Chat Messages;#VAR {mip[%1][data]} {@fMipTildaConv{$mip[%1][data]}};};
-    #CASE {"CAP"} {#NOP Window Caption Text;#FORMAT {temp} {%h} {%2};};
+    #CASE {"CAP"} {#NOP Window Caption Text;#FORMAT {temp} {%h} {$tmp[mipdata]};};
     #CASE {"CCF"} {#NOP Send File Line;};
     #CASE {"CDF"} {#NOP Send File Begin;};
     #CASE {"CEF"} {#NOP Send File End;};
     #CASE {"DDD"} {#NOP Room Exits;#REPLACE {mip[DDD][data]} {~} {;};};
-    #CASE {"FFF"} {#NOP Combined Stats Data;.aMipProcessFFF {%2};};
+    #CASE {"FFF"} {#NOP Combined Stats Data;.aMipProcessFFF {$tmp[mipdata]};};
     #CASE {"HAA"} {#NOP Room Items;#VAR {mip[%1][data]} {@fMipTildaConv{$mip[%1][data]}};};
     #CASE {"HAB"} {#NOP Item Actions;#VAR {mip[%1][data]} {@fMipTildaConv{$mip[%1][data]}};};
     #DEFAULT {#NOP Every other non-handled flag;};
@@ -74,7 +77,7 @@
 #ALIAS {.aMipProcessFFF}
 {
   #NOP %1;
-
+  #REPLACE {mip[FFF][data]} {;} {:};
   #REPLACE {mip[FFF][data]} {~} {;};
   #VAR {temp[toggle]} {-1};
   #FOREACH {$mip[FFF][data]} {temp[item]}
@@ -139,7 +142,7 @@
   #NOP %1;
   #IF {"%2" != ""}
   {
-    #VAR {mip[gline][%1]} {@fMipColourConv{{%2}}} ;
+    #VAR {mip[gline][%1]} {@fMipColourConv{{%2}}};
     event_raise e_mip_gline {%1} {$mip[gline][%1]};
   };
 };
