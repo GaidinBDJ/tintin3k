@@ -1,0 +1,49 @@
+#class {gaidinbdj_runing} {kill};
+#class {gaidinbdj_runing} {open};
+
+#list {runing_torune} {create};
+#var {runing[item]} {};
+#var {runing[runes]} {};
+
+#alias {xscribe %1 with%2} {
+	#showme {Item: %1};
+	#showme {Runes: %2};
+	
+	#var {runing[item]} {%1};
+	#var {runing[runes]} {%2};
+	
+	#list {runing_torune} {clear};
+	
+	#regex {$runing[runes]} {%*{ RV| Rv| rv}%*} {#list {runing_torune} {insert} {-1} {revalrie}};
+	#regex {$runing[runes]} {%*{ RJ| Rj| rj}%*} {#list {runing_torune} {insert} {-1} {rejuvenation}};
+	#regex {$runing[runes]} {%*{ HE| He| he}%*} {#list {runing_torune} {insert} {-1} {health}};	
+	#regex {$runing[runes]} {%*{ SP| Sp| sp}%*} {#list {runing_torune} {insert} {-1} {spirit}};
+	#regex {$runing[runes]} {%*{ BT| Bt| bt}%*} {#list {runing_torune} {insert} {-1} {battle}};
+	#regex {$runing[runes]} {%*{ SO| So| so}%*} {#list {runing_torune} {insert} {-1} {stone}};
+	#regex {$runing[runes]} {%*{ SF| Sf| sf}%*} {#list {runing_torune} {insert} {-1} {starfire}};
+	#regex {$runing[runes]} {%*{ WI| Wi| wi}%*} {#list {runing_torune} {insert} {-1} {winter}};
+	#regex {$runing[runes]} {%*{ CO| Co| co}%*} {#list {runing_torune} {insert} {-1} {corrosion}};
+	#regex {$runing[runes]} {%*{ ST| St| st}%*} {#list {runing_torune} {insert} {-1} {storms}};
+	#regex {$runing[runes]} {%*{ TH| Th| th}%*} {#list {runing_torune} {insert} {-1} {thought}};
+	#regex {$runing[runes]} {%*{ BA| Ba| ba}%*} {#list {runing_torune} {insert} {-1} {balefire}};
+	#regex {$runing[runes]} {%*{ VE| Ve| ve}%*} {#list {runing_torune} {insert} {-1} {venom}};
+	#regex {$runing[runes]} {%*{ DE| De| de}%*} {#list {runing_torune} {insert} {-1} {decay}};
+	#regex {$runing[runes]} {%*{ PO| Po| po}%*} {#list {runing_torune} {insert} {-1} {power}};
+	#regex {$runing[runes]} {%*{ SE| Se| se}%*} {#list {runing_torune} {insert} {-1} {sending}};
+	#regex {$runing[runes]} {%*{ ET| Et| et}%*} {#list {runing_torune} {insert} {-1} {eternity}};	
+	
+	#showme $runing_torune;
+	
+	pprepare $runing[item];
+};
+
+#action {^Corath returns the item.} {
+	#if {"$runing_torune[+1] != ""} {
+		pinscribe $runing_torune[+1] on $runing[item];
+		#list {runing_torune} {delete} {1};
+	} {
+		#showme Runing complete.
+	};
+};
+
+#class {gaidinbdj_runing} {close};
