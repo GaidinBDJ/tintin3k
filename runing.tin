@@ -38,7 +38,10 @@
 };
 
 #action {^Corath returns the item.} {
-	#if {"$runing_torune[+1] != ""} {
+	#if {&runing_torune[] != 0} {
+		#showme Size: &runing_torune[];
+		#showme List: $runing_torune;	
+		#showme Rune: $runing_torune[+1];
 		pinscribe $runing_torune[+1] on $runing[item];
 		#list {runing_torune} {delete} {1};
 	} {
