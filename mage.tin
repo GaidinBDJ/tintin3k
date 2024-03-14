@@ -1,0 +1,200 @@
+#class {guild_mage} {kill};
+#class {guild_mage} {open};
+
+#var {G_GUILD} {mage};
+
+#alias {ktreset} {ktrig say ktrig fired/cast spell tap on corpse/wrap/cast corpse blast/get coins/cast spectral force as study spellbook};
+ktreset
+repeat off
+reflex clear
+reflex add gp2 >90% say autosummons, begone
+reflex start
+panic off
+cast perform as cast disintegrate
+cast activate combat
+cast remove summon config as 1
+cast remove summon config as 1
+cast summon config as monster summoning 5#minotaur#1#1500#1#assist#autosummons
+cast summon config activate
+
+#function {guild_kill} {
+	#if {"$my[dogtank]" == "true"} {#return {#delay 2 {dog sicem %0;cast slow}}};
+	#else {#return {kill %0;#if {$my[golem_out]} {say golem, defend me} {#nop};cast slow}};
+};
+
+#alias k {
+	@guild_kill{%0};
+};
+#unalias {gs};
+#unalias {gs2};
+#alias {gsk} {study};
+#alias {gwho} {mages};
+#alias {rcost} {cast rcost};
+#unalias {info};
+#alias {.} {mage};
+#alias {chist} {mage -h};
+#alias .cbot {.bot};
+
+#alias {c} {cast};
+#alias {ms1} {cast monster summoning 1};
+#alias {ms2} {cast monster summoning 2};
+#alias {ms3} {cast monster summoning 3};
+#alias {ms4} {cast monster summoning 4};
+#alias {ms5} {cast monster summoning 5};
+
+#highlight {^Head:         none} {red};
+#highlight {^Heavy body:   none} {red};
+#highlight {^Upper body:   none} {red};
+#highlight {^On legs:      none} {red};
+#highlight {^Hands:        none} {red};
+#highlight {^Shield:       none} {red};
+
+#action {^There is no reason to 'ffetch' here.} {cast find familiar;#var fetching_gem 0};
+
+#function {hpbar_topline} {
+	#regex {$my[gl2]} {{G: (\d+)\/(\d+)%  S: (\d+)\/(\d+)%  I: (\d+)  G2N:(<\d{3}>)?(\d+)%(<\d{3}>)?\s+(.*)}} {
+		#var {my[golem]} {&2};
+		#var {my[golemreset]} {&3};
+		#var {my[schoolspell]} {&4};
+		#var {my[schoolreset]} {&5};
+		#var {my[immersions]} {&6};
+		#var {my[gtnln]} {&8};
+		#var {my[summons]} {&10};
+	} {
+		#return Regex failed: $my[gl2];
+	};
+
+	#format {gl2} {<faa>G:%d/%d%s Sch:%d/%d%s Imm:%d G2N:%d}
+		{$my[golem]} {$my[golemreset]} {%}
+		{$my[schoolspell]} {$my[schoolreset]} {%}
+		{$my[immersions]}
+		{$my[gtnln]};
+
+	#if {&{my[dog]}} {#var {gl2} {$gl2 Dog:$my[dog][pHP]}};
+
+	#replace {my[summons]} {%w golem} {999};
+	#regex {$my[summons]} {999} {#var my[golem_out] 1} {#var my[golem_out] 0};
+	#replace {my[summons]} { } {};
+	#replace {my[summons]} {%w:} {};
+	#nop Special case for 7-headed hydra;
+	#replace {my[summons]} {7-} {};
+	#replace {my[summons]} {999} {G:};
+
+	#if {"$my[summons]" != ""} {
+		#var {gl2} {$gl2 $my[summons]}
+	} {
+		#nop;
+	};
+	
+	#var {gl2} {$gl2<088>};
+
+	#return $gl2;
+};
+
+#function {hpbar_midline} {
+	#format {hpstr} {HP:<%s>%+3m<faa>%s} {@ciflt{$my[cHP];$my[mHP];fff;faa}} {$my[cHP]*100/$my[mHP]} {%};
+	#format {spstr} {SP:<%s>%+3m<faa>%s} {@ciflt{$my[cSP];$my[mSP];fff;faa}} {$my[cSP]*100/$my[mSP]} {%};
+	#format {g1str} {Sat:<%s>%+3m<faa>%s} {@cifgt{$my[cGP1];0;fff;faa}} {$my[cGP1]} {%};	
+	#format {g2str} {Conc:<%s>%+3m<faa>%s} {@cifgt{$my[cGP2];0;fff;faa}} {$my[cGP2]} {%};
+	#format {tarstr} {E:%+2s%s Rnd:%s} {$my[target][health]} {%} {$my[rounds]};
+	#format {hpbar} {<faa>%s %s %s %s %s<088>} {$hpstr} {$spstr} {$g1str} {$g2str} {$tarstr};
+	#return $hpbar;
+};
+
+#function {hpbar_bottomline} {
+	#var {gl1} {$my[gl1]};
+	#replace {gl1} {{<\d{3}>}} {};
+	
+	#regex {$gl1} {{(S )?(MC:(\d+) )?Gem:(\d+)% ST:(\d+)\/(\d+)  Spells:\s+(.*)}} {
+		#if {"&2" == "S "} {#var my[studying] 1} {#var my[studying] 0};
+		#if {"&4" == ""} {#var my[mc] 100} {#var my[mc] &4};
+		#var my[gem] &5;
+		#var my[spelltap] &6;
+		#var my[spells-gline] &8;
+		#replace {my[spells-gline]} {<P} {<P>};
+		#nop #showme 5:&5 6:&6 7:&7 8:&8;
+	} {
+		#nop #showme Regex failed.  mage.tin hpbar_bottomline;
+		#return $my[gl1];
+	};
+	
+	#if {$my[studying]} {#var {tmp[studystr]} {<fff>S <faa>}} {#var tmp[studystr] {}};
+	#if {$my[mc] < 100} {#var {tmp[mcstr]} {MC:<fff>$my[mc]<faa> }} {#var tmp[mcstr] {}};
+	#if {$my[allbuffs]} {#var tmp[spellstr] {<faa>(All Up)<088>}} {#var tmp[spellstr] {<fff>$my[spells-gline]<088>}};
+	
+	#format {gl1} {<faa>%s%sGem:%d%s ST:%d Spells:%s<088>}
+		{$tmp[studystr]}
+		{$tmp[mcstr]}
+		{$my[gem]} {%}
+		{$my[spelltap]}
+		{$tmp[spellstr]};
+		
+	#return $gl1;
+};
+
+#action {^ HP:%d/%d  SP:%d/%d/%d%%/%d%%  Sat:%d%%  Con:%d%%} {
+	#var my[hp][current] %1;
+	#var my[hp][max] %2;
+	#var my[sp][current] %3;
+	#var my[sp][max] %4;
+	#var my[mc] %5;
+	#var my[gem] %6;
+	#if {$my[gem] < 90} {
+		#if {$fetching_gem} {
+			#nop;
+		} {
+			#var fetching_gem 1;
+			ffetch gem;
+			#delay {10} {#var fetching_gem 0};
+		};
+	};
+};
+
+#action { G:%1(%2%) I:%3 ST:%4 G2:%5%  Prot:[%6]} {
+	#var {my[golems]} {%1};
+	#var {my[reset]} {%2};
+	#var {my[immersions]} {%3};
+	#var {my[spelltap]} {%4};
+	#var {my[gtnl]} {%5};
+	#var {my[spells]} {%6 };
+	#var {my[allbuffs]} {0};
+	#regex $my[spells] {%* A %*} {#nop} {cast armor;#return;};
+	#regex $my[spells] {%*MS %*} {#nop} {cast magnificent shield;#return;};
+	#regex $my[spells] {%*SS %*} {#nop} {cast stoneskin;#return;};
+	#nop upgraded #regex $my[spells] {%*mg %*} {#nop} {cast minor globe;#return;};
+	#regex $my[spells] {%*MG %*} {#nop} {cast major globe;#return;};	
+	#regex $my[spells] {%*MB %*} {#nop} {cast mindblank;#return;};
+	#regex $my[spells] {%* B %*} {#nop} {cast blink;#return;};
+	#regex $my[spells] {%* PA %*} {#nop} {cast prismatic aura;#var my[allbuffs] 1;#return;};
+	#var {my[allbuffs]} {1};
+};
+
+
+#function {guild_recovered_check} {
+	hpbar_setPcts;
+	
+	#if {&{my[dog]}} {
+		#if { $my[pHP] > .99 && $my[pSP] > .99 && $my[pGP1] < .01 && $my[dog][pHP] > .99 } {
+			#return 1;
+		} {
+			dh;
+			#return 0;
+		};	
+	};
+	#else {
+		#if { $my[pHP] > .99 && $my[pSP] > .99 && $my[pGP1] < .01 } {
+			#return 1;
+		} {
+			#return 0;
+		};	
+	};	
+	
+};
+
+#alias {guild_recovery_actions} {
+    #nop;
+    hpbar_setPcts;
+};
+
+
+#class {guild_mage} {close};
