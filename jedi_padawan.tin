@@ -1,0 +1,176 @@
+#class {jedi_padawan} {kill};
+#class {jedi_padawan} {open};
+
+#nop Padwan - Jedi instructor utility for 3-Kingdoms;
+#nop by GaidinBDJ;
+#nop;
+#nop Usage: "padawan" will show the current teacher if;
+#nop present, what they teach, and how long they have been;
+#nop there.  If there is no teacher present, it will tell;
+#nop the last one and how long they've been gone;
+
+#var {padawan[init]} {0};
+#var {padawan[current]} {0};
+#var {padawan[arrive_time]} {0};
+#var {padawan[last]} {0};
+#var {padawan[depart_time]} {0};
+
+#action {^[JEDI]: %1 arrives at the Academy.} {
+    #var {padawan[init]} {1};
+    #var {padawan[last]} {$padawan[current]};
+    #var {padawan[current]} {%1};
+    #format {padawan[arrive_time]} {%T};
+    #var {padawan[depart_time]} {0};
+};
+
+#action {^[JEDI]: %1 leaves the Academy.} {
+    #var {padawan[init]} {1};
+    #var {padawan[last]} {$padawan[current]};
+    #var {padawan[current]} {0};
+    #var {padawan[arrive_time]} {0};
+    #format {padawan[depart_time]} {%T};
+};
+
+
+#alias {padawan} {
+    #if {!$padawan[init]} {
+        #format {tmp[title]} {%-46s} {Padwan: Not initialized};    
+        #showme <fff>.================================================.<088>;
+        #showme <fff>|<088> $tmp[title] <fff>|<088>;
+        #showme <fff>|================================================'<088>;
+        #showme <fff>|<088>;
+        #showme <fff>|<088> Probably have not seen a teacher arrive;
+        #showme <fff>|<088>  or depart yet.;
+        #showme <fff>|<088>;        
+        #showme <fff>'=<088>;
+        #return;
+    };    
+  
+    #format {tmp[now]} {%T};
+    #math {tmp[diff]} {$tmp[now] - $padawan[depart_time]};
+    #if {$tmp[diff] < 60} {#var {tmp[time]} {$tmp[diff] seconds}};
+    #if {$tmp[diff] > 60} {
+        #math {tmp[time]} {$tmp[diff] / 60};
+        #var {tmp[time]} {$tmp[diff] minutes}
+    };
+    #if {!$padawan[current]} {
+        #format {tmp[title]} {%-46s} {Padwan: No teacher present};        
+        #showme <fff>.================================================.<088>;
+        #showme <fff>|<088> $tmp[title] <fff>|<088>;
+        #showme <fff>|================================================'<088>;
+        #showme <fff>|<088>;
+        #showme <fff>|<088> $padawan[last] departed $tmp[time] ago;
+        #showme <fff>|<088>;        
+        #showme <fff>'=<088>;
+        #return;
+    };
+    
+    padawan_display;
+};
+
+#alias {padawan_display} {
+    #format {tmp[title]} {%-46s} {$padawan[teachers][$padawan[current]][title]};
+    
+    #format {tmp[now]} {%T};
+    #math {tmp[diff]} {$tmp[now] - $padawan[arrive_time]};
+    #var {tmp[time]} {Arrived $tmp[diff] seconds ago.};
+    
+    
+    #format {tmp[now]} {%T};
+    #math {tmp[diff]} {$tmp[now] - $padawan[arrive_time]};
+    #if {$tmp[diff] < 60} {#var {tmp[time]} {$tmp[diff] seconds}};
+    #if {$tmp[diff] > 60} {
+        #math {tmp[time]} {$tmp[diff] / 60};
+        #var {tmp[time]} {$tmp[time] minutes}
+    };
+    
+    #showme <fff>.================================================.<088>;
+    #showme <fff>|<088> $tmp[title] <fff>|<088>;
+    #showme <fff>|================================================'<088>;
+    #showme <fff>|<088> $padawan[teachers][$padawan[current]][note];
+    #showme <fff>|<088> Arrived $tmp[time] ago.;
+    #showme <fff>|<088>;
+    #showme <fff>|<088><bcf> Mastered:<088>;
+    #foreach {$padawan[teachers][$padawan[current]][mastered]} {tmp[i]} {#showme <fff>|<088><bcf> $tmp[i]<088>};
+    #showme <fff>|<088>;
+    #showme <fff>|<088><afd> Adept:<088>;
+    #foreach {$padawan[teachers][$padawan[current]][adept]} {tmp[i]} {#showme <fff>|<088><afd> $tmp[i]<088>};
+    #showme <fff>|<088>;
+    #showme <fff>|<088><ffd> Understand:<088>;
+    #foreach {$padawan[teachers][$padawan[current]][understand]} {tmp[i]} {#showme <fff>|<088><ffd> $tmp[i]<088>};
+    #showme <fff>|<088>;
+    #showme <fff>'=<088>;
+};
+
+#var {padawan[teachers][Fondon Raas][title]} {Fondon Raas the Jedi Elder};
+#var {padawan[teachers][Fondon Raas][mastered]} {force, concentration, lightsaber alteration, force deflection};
+#var {padawan[teachers][Fondon Raas][adept]} {0};
+#var {padawan[teachers][Fondon Raas][understand]} {accelerated healing, reduce injury, clear mind, detoxify poison, ;soul siphon, hibernation trance, meditation, lightsaber combat, ;melee combat, dodge, hand to hand combat, control pain, lesser ;force shield, greater force shield, resist poison, resist stun, ;enhance metabolism, launch item, inflict pain, injure-kill, ;telekinetic kill, force lightning, life sense, magnify senses, ;sense force, animal affinity, cloud mind, enrage, confusion, ;mindblock, telekinesis, transfer force, channel energy, drain ;crystals, absorb energy, dissipate energy, release force, alter ;technology, displace matter, force storm};
+
+#var {padawan[teachers][Ylenic It'kla][title]} {Ylenic It'kla, Jedi Master};
+#var {padawan[teachers][Ylenic It'kla][mastered]} {lightsaber combat, control pain, resist poison, magnify senses, ;absorb energy, distract, alter technology, displace matter, ;lightsaber alteration, battle meditation, robotics};
+#var {padawan[teachers][Ylenic It'kla][adept]} {detoxify poison, melee combat, hand to hand combat, cloud mind};
+#var {padawan[teachers][Ylenic It'kla][understand]} {accelerated healing, reduce injury, soul siphon, force, ;concentration, hibernation  trance, meditation, dodge, lesser ;force shield, greater force shield, resist stun, enhance metabolism, ;launch item, inflict pain, injure-kill, telekinetic kill, life sense, ;sense force, telepathy, animal affinity, disturbing aura, misdirect, ;enrage, confusion, mindblock, telekinesis, drain crystals, dissipate ;energy, release force, force storm};
+
+#var {padawan[teachers][Reena Bel Noir][title]} {Reena Bel Noir, Jedi Healer};
+#var {padawan[teachers][Reena Bel Noir][mastered]} {accelerated healing, reduce injury, clear mind, detoxify poison, ;life sense, telepathy, transfer force, lightsaber alteration, ;residual life};
+#var {padawan[teachers][Reena Bel Noir][adept]} {force, control pain, resist poison,cloud mind, displace matter};
+#var {padawan[teachers][Reena Bel Noir][understand]} {concentration,hibernation trance, meditation, dodge, hand to ;hand combat,lesser force shield, greater force shield, resist ;stun,enhance metabolism, magnify senses, sense force, animal ;affinity, disturbing aura, misdirect, confusion, mindblock, ;telekinesis, channel energy, drain crystals, absorb energy, ;dissipate energy, release force, distract, alter technology};
+
+#var {padawan[teachers][Kerran Halcyon][title]} {Kerran Halcyon, Master of the Mind};
+#var {padawan[teachers][Kerran Halcyon][mastered]} {telepathy, lightsaber alteration};
+#var {padawan[teachers][Kerran Halcyon][adept]} {clear mind, channel energy, drain crystals, release force};
+#var {padawan[teachers][Kerran Halcyon][understand]} {accelerated healing, reduce injury, concentration, hibernation ;trance, meditation, control pain, lesser force shield, greater ;force shield, resist poison, resist stun, enhance metabolism, ;inflict pain, injure-kill, telekinetic kill, animal affinity, ;cloud mind, disturbing aura, misdirect, enrage, confusion, ;mindblock, telekinesis, absorb energy, distract, alter technology};
+
+#var {padawan[teachers][Durnoth][title]} {Durnoth the Grey};
+#var {padawan[teachers][Durnoth][mastered]} {transfer force, channel energy, dissipate energy, cleanse, ;lightsaber alteration};
+#var {padawan[teachers][Durnoth][adept]} {reduce injury, meditation, lightsaber combat, release force, ;force storm};
+#var {padawan[teachers][Durnoth][understand]} {accelerated healing, clear mind, detoxify poison, soul siphon, ;force, concentration, hibernation trance, melee combat, dodge, ;hand to hand combat, control pain, lesser force shield, greater ;force shield, resist poison, resist stun, enhance metabolism, ;launch item, inflict pain, injure-kill, telekinetic kill, force ;lightning, magnify senses, sense force, animal affinity, cloud ;mind, misdirect, enrage, confusion, mindblock, telekinesis, ;drain crystals, alter technology, displace matter};
+
+#var {padawan[teachers][Talia Ska][title]} {Talia Ska};
+#var {padawan[teachers][Talia Ska][mastered]} {accelerated healing, detoxify poison, melee combat, control ;pain, lesser force shield, resist poison, enhance metabolism, ;launch item, life sense, magnify senses, animal affinity, absorb ;energy, force storm, lightsaber alteration, force mask};
+#var {padawan[teachers][Talia Ska][adept]} {hibernation trance, dodge, hand to hand combat, greater force ;shield, disturbing aura, enrage};
+#var {padawan[teachers][Talia Ska][understand]} {clear mind, force, concentration, meditation, misdirect, confusion, ;channel energy, dissipate energy, distract, displace matter};
+
+#var {padawan[teachers][H'ssani C'talan][title]} {H'ssani C'talan, Jedi Master};
+#var {padawan[teachers][H'ssani C'talan][mastered]} {lightsaber combat, melee combat, dodge, hand to hand combat, ;lightsaber alteration, force deflection};
+#var {padawan[teachers][H'ssani C'talan][adept]} {0};
+#var {padawan[teachers][H'ssani C'talan][understand]} {accelerated healing, clear mind, soul siphon, concentration, ;hibernation trance, meditation, control pain, lesser force ;shield, greater force shield, resist poison, resist stun, enhance ;metabolism, launch item, inflict pain, injure-kill, telekinetic ;kill, life sense, magnify senses, telepathy, disturbing aura, ;telekinesis, transfer force, channel energy, drain crystals, ;absorb energy, dissipate energy, release force, alter technology, ;displace matter, force storm};
+
+#var {padawan[teachers][Rhaan][title]} {Master Rhaan};
+#var {padawan[teachers][Rhaan][mastered]} {hibernation trance, meditation, dodge, hand to hand combat, ;channel energy, dissipate energy, release force, ki burst, ;lightsaber alteration, force sight};
+#var {padawan[teachers][Rhaan][adept]} {accelerated healing, detoxify poison, concentration, control ;pain, resist poison, resist stun, enhance metabolism, animal ;affinity, telekinesis, transfer force, absorb energy};
+#var {padawan[teachers][Rhaan][understand]} {force, melee combat, lesser force shield, greater force shield, ;launch item, inflict pain, injure-kill, telekinetic kill, force ;lightning, life sense, magnify senses, sense force, cloud mind, ;misdirect, enrage, confusion, mindblock, drain crystals, ;displace matter};
+
+#var {padawan[teachers][Herah Wylann][title]} {Herah Wylann, Jedi Mystic};
+#var {padawan[teachers][Herah Wylann][mastered]} {meditation, enhance metabolism, life sense, sense force, confusion, ;mindblock, telekinesis, channel energy, drain crystals, lightsaber ;alteration, shadow sight};
+#var {padawan[teachers][Herah Wylann][adept]} {clear mind, detoxify poison, soul siphon, greater force shield, ;resist stun, launch item, inflict pain, injure-kill, telekinetic ;kill, force lightning, magnify senses, displace matter, ;force storm};
+#var {padawan[teachers][Herah Wylann][understand]} {accelerated healing, reduce injury, force, concentration, hibernation ;trance, dodge, hand to hand combat, control pain, lesser force ;shield, resist poison, animal affinity, cloud mind, disturbing ;aura, misdirect, enrage, transfer force, absorb energy, dissipate ;energy, release force, alter technology, freeze winds};
+
+#var {padawan[teachers][Bithoff Jonansaan][title]} {Bithoff Jonansaan, High Justicar};
+#var {padawan[teachers][Bithoff Jonansaan][mastered]} {hibernation trance, resist stun, release force, alter technology, ;blaster combat, lightsaber alteration, robotics};
+#var {padawan[teachers][Bithoff Jonansaan][adept]} {melee combat, dodge, misdirect, dissipate energy};
+#var {padawan[teachers][Bithoff Jonansaan][understand]} {accelerated healing, force, concentration, meditation, lightsaber ;combat, hand to hand combat, control pain, lesser force shield, ;greater force shield, resist poison, enhance metabolism, launch ;item, inflict pain, magnify senses, sense force, telepathy, ;confusion, transfer force, force storm};
+
+#var {padawan[teachers][Wennic Ber'ni'lok][title]} {Wennic Ber'ni'lok};
+#var {padawan[teachers][Wennic Ber'ni'lok][note]} {Appears as "A robed Jedi."};
+#var {padawan[teachers][Wennic Ber'ni'lok][mastered]} {lightsaber alteration};                      
+#var {padawan[teachers][Wennic Ber'ni'lok][adept]} {disturbing aura, misdirect, confusion, mindblock, alter technology};
+#var {padawan[teachers][Wennic Ber'ni'lok][understand]} {accelerated healing, reduce injury, clear mind, soul siphon, ;force, concentration, hibernation trance, lightsaber combat, ;melee combat, dodge, hand to hand combat, control pain, lesser ;force shield, greater force shield, resist poison, resist stun, ;enhance metabolism, launch item, inflict pain, injure-kill, ;life sense, magnify senses, sense force, telepathy, animal affinity, ;cloud mind, enrage, telekinesis, transfer force, drain crystals, ;absorb energy, dissipate energy, release force, displace matter, ;force storm};
+
+#var {padawan[teachers][Alyssa K'tal][title]} {Alyssa K'tal};
+#var {padawan[teachers][Alyssa K'tal][mastered]} {inflict pain, injure-kill, telekinetic kill, force lightning, ;magnify senses, mind trick, telepathy, cloud mind, disturbing ;aura, misdirect, enrage, confusion, mindblock, drain crystals, ;distract, displace matter, dark suggestion, lightsaber alteration, ;freeze winds, dominate mind};
+#var {padawan[teachers][Alyssa K'tal][adept]} {soul siphon, force, meditation, dodge, launch item, animal affinity};
+#var {padawan[teachers][Alyssa K'tal][understand]} {accelerated healing, reduce injury, clear mind, concentration, ;hibernation trance, melee combat, lesser force shield, resist ;stun, sense force, transfer force, alter technology, force storm};
+
+#var {padawan[teachers][Tobias Kel'ach'nar][title]} {Tobias Kel'ach'nar, Lord of the Sith};
+#var {padawan[teachers][Tobias Kel'ach'nar][mastered]} {clear mind, soul siphon, lesser force shield, greater force ;shield, launch item, inflict pain, injure-kill, telekinetic ;kill, force lightning, displace matter, force storm, call the ;dark side, lightsaber alteration, freeze winds, channel hate};
+#var {padawan[teachers][Tobias Kel'ach'nar][adept]} {hibernation trance, meditation, enrage, telekinesis, transfer ;force, absorb energy, dissipate energy};
+#var {padawan[teachers][Tobias Kel'ach'nar][understand]} {accelerated healing, reduce injury, detoxify poison, force, ;concentration, resist poison, resist stun, magnify senses, sense ;force, animal affinity, cloud mind, disturbing aura, misdirect, ;confusion, mindblock};
+
+#var {padawan[teachers][Janath Meelin][title]} {Janath Meelin, Saarai-kaar of the Jensaarai};
+#var {padawan[teachers][Janath Meelin][mastered]} {greater force shield, resist stun, sense force, misdirect, ;armor enhancement, lightsaber alteration};
+#var {padawan[teachers][Janath Meelin][adept]} {accelerated healing, lightsaber combat, lesser force shield};
+#var {padawan[teachers][Janath Meelin][understand]} {force, concentration, hibernation trance, meditation, melee ;combat, dodge, hand to hand combat, control pain, resist poison, ;enhance metabolism, launch item, inflict pain, injure-kill, ;telekinetic kill, force lightning, life sense, magnify senses, ;enrage, confusion, mindblock, transfer force, channel energy, ;dissipate energy, release force, force storm};
+
+#class {jedi_padawan} {close};
